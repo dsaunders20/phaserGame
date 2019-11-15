@@ -1,6 +1,13 @@
 import { Scene } from 'phaser';
 
 class GameScene extends Scene {
+    constructor() {
+        // because GameScene extends another class we need super()
+        super()
+        
+        this.score = 0;
+        this.gameOver = false;
+    }
     // =========================================
     // preload
     preload(){
@@ -22,6 +29,9 @@ class GameScene extends Scene {
         this.createPlayer();
         this.createCursor();
         this.createStars();
+        this.createBombs();
+
+        this.scoreText = this.add.text(16, 16, `score: ${this.score}`, { fontSize: '32px', fill: '#000' });
     }
 
     createPlatforms() {
@@ -81,7 +91,39 @@ class GameScene extends Scene {
     }
     collectStar (player, star){
         star.disableBody(true, true);
-    }    // ================================
+        this.updateScore();
+        if (this.stars.countActive(true) === 0)
+        {
+            this.stars.children.iterate((child) => {
+                child.enableBody(true, child.x, 0, true, true);
+    
+            });
+    
+            const x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+            const bomb = this.bombs.create(x, 16, 'bomb');
+            bomb.setBounce(1);
+            bomb.setCollideWorldBounds(true);
+            bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+        }
+    }  
+    createBombs() {
+        this.bombs = this.physics.add.group({
+            // key: 'bomb',
+            // repeat: 4,
+            // setXY: { x: 7, y: 10, stepX:150 }
+        });
+
+        this.physics.add.collider(this.bombs, this.platforms);
+        this.physics.add.collider(this.player, this.bombs, this.hitBomb, null, this);
+    }
+    hitBomb (player, bomb)
+    {
+        this.physics.pause();
+        this.player.setTint(0xff0000);
+        this.player.anims.play('turn');
+        this.gameOver = true;
+    }
+    // ================================
     // Update
     update() {
         if (this.cursors.left.isDown) {
@@ -103,6 +145,11 @@ class GameScene extends Scene {
         if (this.cursors.up.isDown && this.player.body.touching.down) {
             this.player.setVelocityY(-330);
         }
+    }
+
+    updateScore() {
+        this.score += 10;
+        this.scoreText.setText(`Score: ${this.score}`);
     }
 }
 
