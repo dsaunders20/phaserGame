@@ -1,5 +1,6 @@
 import GameScene from './GameScene'
 import Phaser from 'phaser'
+import IntroScene from './IntroScene';
 
 const config = {
     type: Phaser.AUTO,
@@ -13,7 +14,7 @@ const config = {
             debug: false
         }
     },
-    scene: GameScene
+    scene: [IntroScene, GameScene]
 };
 
 export { config }

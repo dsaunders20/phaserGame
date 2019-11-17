@@ -3,7 +3,7 @@ import { Scene } from 'phaser';
 class GameScene extends Scene {
     constructor() {
         // because GameScene extends another class we need super()
-        super()
+        super({ key: 'game' })
         
         this.score = 0;
         this.gameOver = false;
@@ -32,6 +32,8 @@ class GameScene extends Scene {
         this.createBombs();
 
         this.scoreText = this.add.text(16, 16, `score: ${this.score}`, { fontSize: '32px', fill: '#000' });
+        this.gameOverText = this.add.text(400, 300, 'GAME OVER \nClick to Restart the Game', {fontWeight: 'bold', fontSize: '40px', backgroundColor: 'red'}).setOrigin(0.5, 0.5);
+        this.gameOverText.visible = false;
     }
 
     createPlatforms() {
@@ -46,7 +48,7 @@ class GameScene extends Scene {
 
     createPlayer() {
         this.player = this.physics.add.sprite(100, 450, 'dude');
-        this.player.setBounce(0.2);
+        this.player.setBounce(0.1);
         this.player.setCollideWorldBounds(true);
         this.physics.add.collider(this.player, this.platforms);
 
@@ -78,7 +80,7 @@ class GameScene extends Scene {
     createStars() {
         this.stars = this.physics.add.group({
             key: 'star',
-            repeat: 11,
+            repeat: 1,
             setXY: { x: 12, y: 0, stepX: 70 }
         });
         
@@ -122,7 +124,15 @@ class GameScene extends Scene {
         this.player.setTint(0xff0000);
         this.player.anims.play('turn');
         this.gameOver = true;
+        // show gameOver Text
+        this.gameOverText.visible = true;   
+        if (this.gameOverText.visible) {
+            this.input.on('pointerdown', () => {
+                this.scene.restart();
+            })
+        }
     }
+
     // ================================
     // Update
     update() {
