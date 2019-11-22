@@ -1,4 +1,5 @@
 import { Scene } from 'phaser' 
+import GameScene from './GameScene';
 
 class IntroScene extends Scene {
     constructor() {
@@ -13,7 +14,9 @@ class IntroScene extends Scene {
         this.input.on('pointerdown', () => {
             this.scene.start('game');
         })
+        this.scoreText = this.add.text(16, 16, `score: ${GameScene.score}`, { fontSize: '32px', fill: '#000' });
     }
+
 }
 
 export default IntroScene

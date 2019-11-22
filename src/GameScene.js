@@ -32,11 +32,18 @@ class GameScene extends Scene {
         this.createStars();
         this.createBombs();
 
-        this.scoreText = this.add.text(16, 16, `score: ${this.score}`, { fontSize: '32px', fill: '#000' });
+        this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, { fontSize: '32px', fill: '#000' });
 
         this.gameOverText = this.add.text(400, 300, 'GAME OVER \nClick to Restart the Game', {fontWeight: 'bold', fontSize: '40px', backgroundColor: 'red'}).setOrigin(0.5, 0.5);
         this.gameOverText.visible = false;
         this.gameOverText.setInteractive();
+
+        this.livesText = this.add.text(620, 16, `Lives: ${this.lives}`, { fontSize: '32px', fill: '#000' });
+
+        this.livesMessage = this.add.text(400, 300, 'LOST A LIFE.. Click to RESUME', {fontWeight: 'bold', fontSize: '40px', backgroundColor: 'red'}).setOrigin(0.5, 0.5);
+        this.livesMessage.visible = false;
+
+
     }
 
     createPlatforms() {
@@ -127,11 +134,23 @@ class GameScene extends Scene {
         this.physics.pause();
         this.player.setTint(0xff0000);
         this.player.anims.play('turn');
-        this.gameOver = true;
-        this.gameOverFunction(); 
+        this.updateLives();
+        if (this.lives < 1) {
+            this.gameOverFunction(); 
+        }
+        else {
+            this.livesMessage.visible = true;
+            this.input.on('pointerup', ()=> {
+                this.livesMessage.visible = false;
+                this.physics.resume();
+                this.player.clearTint();
+            });
+
+        }
     }
     gameOverFunction() {
         this.score = 0;
+        this.lives = 2;
         this.gameOverText.visible = true; 
 
         this.gameOverText.on('pointerdown', ()=> {
@@ -174,6 +193,11 @@ class GameScene extends Scene {
     updateScore() {
         this.score += 10;
         this.scoreText.setText(`Score: ${this.score}`);
+    }
+    
+    updateLives() {
+        this.lives--;
+        this.livesText.setText(`Lives: ${this.lives}`);
     }
 }
 
