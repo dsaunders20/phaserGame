@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import { Scene } from 'phaser' 
 
 class IntroScene extends Scene {
     constructor() {

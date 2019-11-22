@@ -7,6 +7,7 @@ class GameScene extends Scene {
         
         this.score = 0;
         this.gameOver = false;
+        this.lives = 2;
     }
     // =========================================
     // preload
@@ -25,15 +26,17 @@ class GameScene extends Scene {
     // create
     create(){
         const sky = this.add.image(400,300,'sky')  
-        this.createPlatforms()
+        this.createPlatforms();
         this.createPlayer();
         this.createCursor();
         this.createStars();
         this.createBombs();
 
         this.scoreText = this.add.text(16, 16, `score: ${this.score}`, { fontSize: '32px', fill: '#000' });
+
         this.gameOverText = this.add.text(400, 300, 'GAME OVER \nClick to Restart the Game', {fontWeight: 'bold', fontSize: '40px', backgroundColor: 'red'}).setOrigin(0.5, 0.5);
         this.gameOverText.visible = false;
+        this.gameOverText.setInteractive();
     }
 
     createPlatforms() {
@@ -82,10 +85,12 @@ class GameScene extends Scene {
             key: 'star',
             repeat: 1,
             setXY: { x: 12, y: 0, stepX: 70 }
+            
         });
         
         this.stars.children.iterate((child) => {
-            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8))
+            child.setCircle(12, 0.5)
         });
 
         this.physics.add.collider(this.stars, this.platforms);
@@ -118,19 +123,28 @@ class GameScene extends Scene {
         this.physics.add.collider(this.bombs, this.platforms);
         this.physics.add.collider(this.player, this.bombs, this.hitBomb, null, this);
     }
-    hitBomb (player, bomb)
-    {
+    hitBomb (player, bomb)  {
         this.physics.pause();
         this.player.setTint(0xff0000);
         this.player.anims.play('turn');
         this.gameOver = true;
-        // show gameOver Text
-        this.gameOverText.visible = true;   
-        if (this.gameOverText.visible) {
-            this.input.on('pointerdown', () => {
-                this.scene.restart();
-            })
-        }
+        this.gameOverFunction(); 
+    }
+    gameOverFunction() {
+        this.score = 0;
+        this.gameOverText.visible = true; 
+
+        this.gameOverText.on('pointerdown', ()=> {
+    
+            this.gameOverText.setTint(0xff0000);
+    
+        });
+        this.gameOverText.on('pointerup', ()=> {
+    
+            this.scene.restart();
+        });
+
+
     }
 
     // ================================
