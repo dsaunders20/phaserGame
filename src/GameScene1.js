@@ -1,13 +1,14 @@
 import { Scene } from 'phaser';
 
-class GameScene extends Scene {
+class GameScene1 extends Scene {
     constructor() {
         // because GameScene extends another class we need super()
-        super({ key: 'game' })
+        super({ key: 'level1' })
         
         this.score = 0;
         this.gameOver = false;
         this.lives = 2;
+        this.level = 1;
     }
     // =========================================
     // preload
@@ -39,6 +40,8 @@ class GameScene extends Scene {
         this.gameOverText.setInteractive();
 
         this.livesText = this.add.text(620, 16, `Lives: ${this.lives}`, { fontSize: '32px', fill: '#000' });
+
+        this.levelText = this.add.text(400, 34, `Level: ${this.level}`, { fontSize: '32px', fill: '#000' }).setOrigin(0.5);
 
         this.livesMessage = this.add.text(400, 300, 'LOST A LIFE.. Click to RESUME', {fontWeight: 'bold', fontSize: '40px', backgroundColor: 'red'}).setOrigin(0.5, 0.5);
         this.livesMessage.visible = false;
@@ -201,4 +204,4 @@ class GameScene extends Scene {
     }
 }
 
-export default GameScene;
+export default GameScene1;

@@ -1,5 +1,5 @@
 import { Scene } from 'phaser' 
-import GameScene from './GameScene';
+import GameScene1 from './GameScene1';
 
 class IntroScene extends Scene {
     constructor() {
@@ -12,9 +12,9 @@ class IntroScene extends Scene {
     create() {
         const logo = this.add.image(400, 300, 'logo').setOrigin(0.5);
         this.input.on('pointerdown', () => {
-            this.scene.start('game');
+            this.scene.start('level2');
         })
-        this.scoreText = this.add.text(16, 16, `score: ${GameScene.score}`, { fontSize: '32px', fill: '#000' });
+        this.scoreText = this.add.text(16, 16, `score: ${GameScene1.score}`, { fontSize: '32px', fill: '#000' });
     }
 
 }
