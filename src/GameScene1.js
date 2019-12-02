@@ -1,11 +1,12 @@
 import { Scene } from 'phaser';
+import * as global from '.';
 
 class GameScene1 extends Scene {
     constructor() {
         // because GameScene extends another class we need super()
         super({ key: 'level1' })
         
-        this.score = 0;
+        this.score = global.getScore();
         this.gameOver = false;
         this.lives = 2;
         this.level = 1;
@@ -46,6 +47,8 @@ class GameScene1 extends Scene {
         this.livesMessage = this.add.text(400, 300, 'LOST A LIFE.. Click to RESUME', {fontWeight: 'bold', fontSize: '40px', backgroundColor: 'red'}).setOrigin(0.5, 0.5);
         this.livesMessage.visible = false;
 
+        this.nextLevelText = this.add.text(400, 300, 'LEVEL COMPLETE - Click to advance', {fontWeight: 'bold', fontSize: '40px', backgroundColor: 'red'}).setOrigin(0.5, 0.5);
+        this.nextLevelText.visible = false;
 
     }
 
@@ -109,6 +112,11 @@ class GameScene1 extends Scene {
     collectStar (player, star){
         star.disableBody(true, true);
         this.updateScore();
+        if (this.score % 100 === 0 && this.score != 0) {
+            global.setScore(this.score);
+            this.goToNextLevel()
+            return;
+        }
         if (this.stars.countActive(true) === 0)
         {
             this.stars.children.iterate((child) => {
@@ -121,6 +129,7 @@ class GameScene1 extends Scene {
             bomb.setBounce(1);
             bomb.setCollideWorldBounds(true);
             bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+            return
         }
     }  
     createBombs() {
@@ -138,19 +147,8 @@ class GameScene1 extends Scene {
         this.player.setTint(0xff0000);
         this.player.anims.play('turn');
         this.updateLives();
-        if (this.lives < 1) {
-            this.gameOverFunction(); 
-        }
-        else {
-            this.livesMessage.visible = true;
-            this.input.on('pointerup', ()=> {
-                this.livesMessage.visible = false;
-                this.physics.resume();
-                this.player.clearTint();
-            });
-
-        }
     }
+
     gameOverFunction() {
         this.score = 0;
         this.lives = 2;
@@ -167,6 +165,15 @@ class GameScene1 extends Scene {
         });
 
 
+    }
+    
+    goToNextLevel() {
+        this.physics.pause();
+        this.nextLevelText.visible = true;
+        this.input.on('pointerup', ()=> {
+    
+            this.scene.start('level2');
+        });
     }
 
     // ================================
@@ -194,13 +201,25 @@ class GameScene1 extends Scene {
     }
 
     updateScore() {
-        this.score += 10;
+        this.score = this.score + 10;
         this.scoreText.setText(`Score: ${this.score}`);
     }
     
     updateLives() {
         this.lives--;
         this.livesText.setText(`Lives: ${this.lives}`);
+        if (this.lives < 1) {
+            this.gameOverFunction(); 
+            return
+        }
+        else {
+            this.livesMessage.visible = true;
+            this.input.on('pointerup', ()=> {
+                this.livesMessage.visible = false;
+                this.scene.restart();
+                this.player.clearTint();
+            });
+        }
     }
 }
 

@@ -1,10 +1,14 @@
 import { Scene } from 'phaser';
 import GameScene1 from './GameScene1';
+import IntroScene from "./IntroScene";
+import * as global from '.';
 
 class GameScene2 extends Scene {
     constructor() {
         // because GameScene extends another class we need super()
         super({ key: 'level2' })
+        
+        // console.log(score)
     }
     // =========================================
     // preload
@@ -12,6 +16,7 @@ class GameScene2 extends Scene {
         this.load.image('logo', 'assets/logo.png');
         this.load.image('sky', 'assets/sky.png');
         this.load.image('ground', 'assets/Grass_Tile_Flat.png');
+        this.load.image('block', 'assets/Block_Green.png');
         this.load.image('star', 'assets/star.png');
         this.load.image('bomb', 'assets/bomb.png');
         this.load.spritesheet('dude', 
@@ -19,6 +24,7 @@ class GameScene2 extends Scene {
         { frameWidth: 32, frameHeight: 48 }
         )
     };
+
     // =============================================
     // create
     create(){
@@ -27,20 +33,25 @@ class GameScene2 extends Scene {
         this.createPlayer();
         this.createCursor();
         this.createStars();
-        this.createBombs();
+        this.createBombs(); 
+        this.score = global.getScore();
 
-        this.scoreText = this.add.text(16, 16, `Score: ${GameScene1.score}`, { fontSize: '32px', fill: '#000' });
+
+        this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, { fontSize: '32px', fill: '#000' });
 
         this.gameOverText = this.add.text(400, 300, 'GAME OVER \nClick to Restart the Game', {fontWeight: 'bold', fontSize: '40px', backgroundColor: 'red'}).setOrigin(0.5, 0.5);
         this.gameOverText.visible = false;
         this.gameOverText.setInteractive();
 
-        this.livesText = this.add.text(620, 16, `Lives: ${GameScene1.lives}`, { fontSize: '32px', fill: '#000' });
+        // this.livesText = this.add.text(620, 16, `Lives: ${GlobalVariables.lives}`, { fontSize: '32px', fill: '#000' });
 
-        this.levelText = this.add.text(400, 34, `Level: ${GameScene1.level}`, { fontSize: '32px', fill: '#000' }).setOrigin(0.5);
+        // this.levelText = this.add.text(400, 34, `Level: ${GlobalVariables.level}`, { fontSize: '32px', fill: '#000' }).setOrigin(0.5);
 
         this.livesMessage = this.add.text(400, 300, 'LOST A LIFE.. Click to RESUME', {fontWeight: 'bold', fontSize: '40px', backgroundColor: 'red'}).setOrigin(0.5, 0.5);
         this.livesMessage.visible = false;
+
+        this.nextLevelText = this.add.text(400, 300, 'LEVEL COMPLETE - Click to advance', {fontWeight: 'bold', fontSize: '40px', backgroundColor: 'red'}).setOrigin(0.5, 0.5);
+        this.nextLevelText.visible = false;
 
 
     }
@@ -48,15 +59,14 @@ class GameScene2 extends Scene {
     createPlatforms() {
         this.platforms = this.physics.add.staticGroup();
     
-        this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-    
-        this.platforms.create(600, 400, 'ground');
+        this.platforms.create(400, 800, 'ground').setScale(3.5).refreshBody();
+        this.platforms.create(600, 200, 'block').setSize(2,2,true);
+
         this.platforms.create(50, 250, 'ground');
-        this.platforms.create(750, 220, 'ground');
     }
 
     createPlayer() {
-        this.player = this.physics.add.sprite(100, 450, 'dude');
+        this.player = this.physics.add.sprite(100, 40, 'dude');
         this.player.setBounce(0.1);
         this.player.setCollideWorldBounds(true);
         this.physics.add.collider(this.player, this.platforms);
@@ -134,18 +144,6 @@ class GameScene2 extends Scene {
         this.player.setTint(0xff0000);
         this.player.anims.play('turn');
         this.updateLives();
-        if (this.lives < 1) {
-            this.gameOverFunction(); 
-        }
-        else {
-            this.livesMessage.visible = true;
-            this.input.on('pointerup', ()=> {
-                this.livesMessage.visible = false;
-                this.physics.resume();
-                this.player.clearTint();
-            });
-
-        }
     }
     gameOverFunction() {
         this.score = 0;
@@ -187,16 +185,34 @@ class GameScene2 extends Scene {
         if (this.cursors.up.isDown && this.player.body.touching.down) {
             this.player.setVelocityY(-330);
         }
+        if (this.player.y >= 575) {
+            this.updateLives();
+            this.scene.restart();
+
+        }
+
     }
 
     updateScore() {
-        this.score += 10;
+        this.score = this.score + 10;
         this.scoreText.setText(`Score: ${this.score}`);
     }
     
     updateLives() {
         this.lives--;
         this.livesText.setText(`Lives: ${this.lives}`);
+        if (this.lives < 1) {
+            this.gameOverFunction(); 
+            return
+        }
+        else {
+            this.livesMessage.visible = true;
+            this.input.on('pointerup', ()=> {
+                this.livesMessage.visible = false;
+                this.scene.restart();
+                this.player.clearTint();
+            });
+        }
     }
 }
 
